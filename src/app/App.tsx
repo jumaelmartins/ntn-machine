@@ -278,6 +278,29 @@ const stats = [
   { value: '+40%', label: 'aumento médio de lucro' },
 ];
 
+const heroServiceHighlights = [
+  {
+    icon: Settings,
+    title: 'Desenvolvimento de Software',
+    description: 'Soluções robustas, escaláveis e seguras para o seu negócio.',
+  },
+  {
+    icon: Bot,
+    title: 'Inteligência Artificial',
+    description: 'IA aplicada para automatizar processos e gerar valor.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Cloud & Infraestrutura',
+    description: 'Ambientes modernos, seguros e preparados para crescimento.',
+  },
+  {
+    icon: LineChart,
+    title: 'Dados & Analytics',
+    description: 'Transformamos dados em insights para decisões melhores.',
+  },
+];
+
 const impactItems = [
   {
     icon: Zap,
@@ -547,168 +570,244 @@ function HeroSection() {
   const ref = useRef<HTMLElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const y = useTransform(scrollYProgress, [0, 1], ['0%', '12%']);
+  const y = useTransform(scrollYProgress, [0, 1], ['0%', '6%']);
   const statsInView = useInView(statsRef, { once: true, amount: 0.35 });
-  const heroAuroraLayers = [
-    {
-      className: 'right-[-8%] top-[-12%] h-[520px] w-[760px] rounded-[46%]',
-      background: 'radial-gradient(80% 120% at 72% 18%, rgba(255,255,255,0.14) 0%, rgba(148,163,184,0.10) 28%, rgba(17,24,39,0.04) 52%, transparent 74%)',
-      filter: 'blur(18px)',
-      opacity: 0.85,
-      animate: { x: [0, -18, 0], y: [0, 14, 0], scale: [1, 1.03, 1] },
-      transition: { duration: 18, repeat: Infinity, ease: 'easeInOut' as const },
-    },
-    {
-      className: 'right-[10%] top-[6%] h-[380px] w-[560px] rounded-[50%]',
-      background: 'radial-gradient(74% 116% at 36% 56%, rgba(255,255,255,0.10) 0%, rgba(148,163,184,0.08) 32%, rgba(17,24,39,0.03) 56%, transparent 78%)',
-      filter: 'blur(24px)',
-      opacity: 0.58,
-      animate: { x: [0, 12, 0], y: [0, -12, 0], scale: [1, 1.05, 1] },
-      transition: { duration: 22, repeat: Infinity, ease: 'easeInOut' as const },
-    },
-  ];
 
   return (
     <section
       ref={ref}
-      className="relative overflow-hidden py-20 sm:py-28 md:py-36 px-4 md:px-8"
-      style={{ background: 'linear-gradient(180deg, #020202 0%, #111827 52%, #050505 100%)' }}
+      className="relative overflow-hidden bg-[#050507] px-4 pb-8 pt-20 sm:pt-24 md:px-8 md:pb-16 md:pt-6"
     >
       <div className="pointer-events-none absolute inset-0">
         <div
           className="absolute inset-0"
           style={{
-            background: 'radial-gradient(120% 86% at 50% 0%, rgba(255,255,255,0.08) 0%, rgba(17,24,39,0.02) 34%, transparent 66%)',
+            background:
+              'radial-gradient(circle at 78% 18%, rgba(201,194,240,0.18), transparent 34%), linear-gradient(180deg, #050507 0%, #0B0B10 56%, #050507 100%)',
           }}
         />
-        <motion.div
-          className="absolute right-[-16%] top-[-28%] h-[640px] w-[880px] rounded-[48%]"
-          style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(17,24,39,0.01) 60%, transparent 100%)',
-            filter: 'blur(60px)',
-            opacity: 0.38,
-          }}
-          animate={{ x: [0, -10, 0], y: [0, 8, 0], scale: [1, 1.02, 1] }}
-          transition={{ duration: 26, repeat: Infinity, ease: 'easeInOut' }}
-        />
-        {heroAuroraLayers.map((shape, index) => (
-          <motion.div
-            key={index}
-            className={`absolute ${shape.className}`}
-            style={{
-              background: shape.background,
-              filter: shape.filter,
-              opacity: shape.opacity,
-            }}
-            animate={shape.animate}
-            transition={shape.transition}
-          />
-        ))}
         <div
           className="absolute inset-0"
           style={{
-            background: 'linear-gradient(90deg, rgba(2,2,2,0.12) 0%, transparent 30%, transparent 70%, rgba(5,5,5,0.18) 100%)',
+            backgroundImage:
+              'linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)',
+            backgroundSize: '56px 56px',
+            maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.7), transparent 86%)',
+          }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(90deg, rgba(5,5,7,0.98) 0%, rgba(5,5,7,0.38) 52%, rgba(5,5,7,0.78) 100%)',
           }}
         />
       </div>
 
-      <motion.div style={{ y }} className="max-w-5xl mx-auto text-center relative z-10">
-        {/* Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full"
-          style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)' }}
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-white/80 animate-pulse-dot" />
-          <span className="font-space-grotesk font-bold text-[11px] tracking-[1.5px] uppercase" style={{ color: 'rgba(255,255,255,0.7)' }}>
-            Software & Automação com IA
-          </span>
-        </motion.div>
-
-        {/* H1 */}
-        <motion.h1
-          initial={{ opacity: 0, y: 28 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="font-outfit font-bold text-white leading-[1.0] tracking-[-2px] mb-6 text-[48px] sm:text-[60px] md:text-[72px]"
-        >
-          Pare de perder dinheiro<br className="hidden sm:block" />{' '}
-          com processos manuais
-        </motion.h1>
-
-        {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="font-space-grotesk text-[17px] leading-[1.65] mb-10 max-w-2xl mx-auto"
-          style={{ color: 'rgba(255,255,255,0.5)' }}
-        >
-          Planilhas, WhatsApp e retrabalho estão custando tempo e clientes. Desenvolvemos sistemas que eliminam processos manuais e aumentam seu lucro em até 40%.
-        </motion.p>
-
-        {/* CTA Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16"
-        >
-          <motion.a
-            href={buildWhatsAppHref('Olá, quero automatizar minha empresa e mapear meus principais gargalos.')}
-            onClick={() => trackConversionEvent('whatsapp_hero_click', { page: 'landing' })}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-[10px] bg-white text-black font-space-grotesk font-extrabold text-[15px] transition-opacity hover:opacity-90"
-            style={{ boxShadow: '0 4px 20px rgba(255,255,255,0.15)' }}
+      <motion.div
+        style={{ y }}
+        className="relative z-10 mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center"
+      >
+        <div className="max-w-2xl pt-4 md:pt-8 lg:pb-16">
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-6 font-space-grotesk text-[8px] font-bold uppercase tracking-[3.2px] text-[#C9C2F0]"
           >
-            <MessageCircle size={18} /> Quero automatizar
-          </motion.a>
-          <motion.a
-            href="#processo"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-[10px] font-space-grotesk font-semibold text-[15px] transition-all"
-            style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.14)' }}
-          >
-            Ver processo
-          </motion.a>
-        </motion.div>
+            Tecnologia que transforma negócios
+          </motion.p>
 
-        {/* Stats grid */}
+          <motion.h1
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-6 font-outfit text-[44px] font-bold leading-[1.02] tracking-[-1.2px] text-white sm:text-[56px] md:text-[66px] lg:text-[48px]"
+          >
+            Transformamos ideias em{' '}
+            <span className="bg-[linear-gradient(135deg,#FFFFFF_0%,#C9C2F0_45%,#767685_100%)] bg-clip-text text-transparent">
+              software inteligente
+            </span>{' '}
+            e resultados reais.
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-9 max-w-[600px] font-space-grotesk text-[16px] leading-[1.75] text-[#E8E6F4] sm:text-[17px]"
+          >
+            Desenvolvemos soluções de software sob medida, com IA e tecnologia de ponta, para acelerar o crescimento e a eficiência da sua empresa.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-8 flex flex-col gap-3 sm:flex-row"
+          >
+            <motion.a
+              href="#solucoes"
+              whileHover={{ y: -2, scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-[12px] px-7 py-3.5 font-space-grotesk text-[15px] font-bold text-[#09090D] transition-opacity hover:opacity-95 sm:w-auto"
+              style={{
+                background: 'linear-gradient(135deg, #FFFFFF 0%, #DCD7F5 100%)',
+                boxShadow: '0 18px 46px rgba(201,194,240,0.22)',
+              }}
+            >
+              Conheça nossas soluções <ArrowRight size={18} />
+            </motion.a>
+            <motion.a
+              href={buildWhatsAppHref('Olá, quero falar com um especialista para entender uma solução da NTN MACHINE.')}
+              onClick={() => trackConversionEvent('whatsapp_hero_click', { page: 'landing' })}
+              whileHover={{ y: -2, scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-[12px] px-7 py-3.5 font-space-grotesk text-[15px] font-semibold text-white transition-all sm:w-auto"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.24)' }}
+            >
+              Fale com um especialista <ArrowRight size={18} />
+            </motion.a>
+          </motion.div>
+
+          <motion.div
+            ref={statsRef}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.34 }}
+            className="grid max-w-[620px] grid-cols-2 overflow-hidden rounded-2xl sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4"
+            style={{ gap: '1px', background: 'rgba(255,255,255,0.09)' }}
+          >
+            {stats.map((stat, i) => {
+              const suffix = stat.value.replace(/[+\d.,]/g, '');
+              const prefix = stat.value.startsWith('+') ? '+' : '';
+
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.42 + i * 0.08 }}
+                  className="py-3.5 text-center"
+                  style={{ background: 'rgba(255,255,255,0.045)' }}
+                >
+                  <div className="font-outfit text-[22px] font-black leading-none text-white">
+                    {statsInView ? <AnimatedStatValue value={stat.value} /> : `${prefix}0${suffix}`}
+                  </div>
+                  <div className="mt-1 font-space-grotesk text-[9px] uppercase tracking-[0.5px]" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                    {stat.label}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </div>
+
         <motion.div
-          ref={statsRef}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          className="grid grid-cols-2 lg:grid-cols-4 max-w-[580px] mx-auto rounded-2xl overflow-hidden"
-          style={{ gap: '1px', background: 'rgba(255,255,255,0.07)' }}
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
+          className="relative min-h-[340px] sm:min-h-[430px] lg:min-h-[590px]"
         >
-          {stats.map((stat, i) => {
-            const suffix = stat.value.replace(/[+\d.,]/g, '');
-            const prefix = stat.value.startsWith('+') ? '+' : '';
+          <div className="ntn-wave-field absolute inset-x-[-18%] top-[18%] bottom-[4%] overflow-hidden opacity-95 [mask-image:radial-gradient(ellipse_at_center,black_0%,black_48%,transparent_76%)]">
+            {[0, 1, 2].map((wave) => (
+              <motion.div
+                key={wave}
+                className="absolute left-1/2 h-[190px] rounded-[50%]"
+                style={{
+                  top: `${42 + wave * 8}%`,
+                  width: `${118 + wave * 18}%`,
+                  background:
+                    'radial-gradient(circle at center, rgba(201,194,240,0.23), transparent 58%), repeating-linear-gradient(90deg, rgba(201,194,240,0) 0px, rgba(201,194,240,0) 24px, rgba(201,194,240,0.48) 25px, rgba(201,194,240,0) 28px)',
+                  filter: 'blur(0.5px)',
+                  opacity: 0.72 - wave * 0.16,
+                }}
+                animate={{ x: ['-58%', '-42%', '-58%'], scaleY: [0.82, 1.08, 0.82] }}
+                transition={{ duration: 8 + wave * 2.5, repeat: Infinity, ease: 'linear', delay: wave * 0.45 }}
+              />
+            ))}
+          </div>
+
+          <motion.div
+            className="ntn-data-stream absolute left-[-12%] right-[-12%] top-[54%] h-[230px] opacity-55"
+            style={{
+              background:
+                'linear-gradient(90deg, transparent, rgba(201,194,240,0.30), transparent), repeating-linear-gradient(90deg, transparent 0 28px, rgba(255,255,255,0.18) 29px 30px)',
+              transform: 'perspective(760px) rotateX(64deg)',
+            }}
+            animate={{ backgroundPosition: ['0px 0px', '340px 0px'] }}
+            transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+          />
+
+          <motion.div
+            className="ntn-particles absolute inset-0"
+            style={{
+              backgroundImage:
+                'radial-gradient(circle, rgba(255,255,255,0.78) 0 1px, transparent 2px), radial-gradient(circle, rgba(201,194,240,0.82) 0 1px, transparent 2px)',
+              backgroundSize: '76px 76px, 118px 118px',
+              maskImage: 'radial-gradient(ellipse at center, black 0%, transparent 72%)',
+            }}
+            animate={{ backgroundPosition: ['0px 0px, 0px 0px', '180px -220px, -260px 180px'] }}
+            transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
+          />
+
+          {Array.from({ length: 16 }).map((_, index) => (
+            <motion.span
+              key={index}
+              className="absolute bottom-[17%] w-px bg-[#C9C2F0]/35"
+              style={{
+                left: `${12 + index * 5.4}%`,
+                height: `${42 + (index % 5) * 34}px`,
+                boxShadow: '0 0 16px rgba(201,194,240,0.42)',
+              }}
+              animate={{ opacity: [0.15, 0.72, 0.24], y: [8, -10, 8] }}
+              transition={{ duration: 3.8 + (index % 4) * 0.5, repeat: Infinity, ease: 'easeInOut', delay: index * 0.12 }}
+            >
+              <span className="absolute -top-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[#E8E6F4]" />
+            </motion.span>
+          ))}
+
+          <div className="absolute left-1/2 top-1/2 z-10 grid aspect-square w-[250px] -translate-x-1/2 -translate-y-1/2 place-items-center sm:w-[340px] lg:w-[420px]">
+            <motion.img
+              src={logoIcon}
+              alt="Símbolo NTN MACHINE animado"
+              className="h-full w-full object-contain"
+              style={{
+                filter: 'drop-shadow(0 38px 100px rgba(201,194,240,0.28))',
+              }}
+              animate={{ y: [0, -18, 0], rotateZ: [0, -1.2, 0.8, 0] }}
+              transition={{ duration: 6.2, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          </div>
+        </motion.div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.42, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-20 mx-auto mt-8 max-w-7xl overflow-hidden rounded-[22px] border border-white/10 bg-white/[0.055] shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-2xl md:mt-[-18px]"
+      >
+        <div className="grid divide-y divide-white/10 md:grid-cols-4 md:divide-x md:divide-y-0">
+          {heroServiceHighlights.map((item) => {
+            const Icon = item.icon;
 
             return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.6 + i * 0.08 }}
-                className="py-4 text-center"
-                style={{ background: 'rgba(255,255,255,0.03)' }}
+              <a
+                key={item.title}
+                href="#solucoes"
+                className="group flex gap-4 p-5 transition-all duration-200 hover:bg-white/[0.09] sm:p-6"
               >
-                <div className="font-outfit font-black text-white text-[26px] leading-none mb-1">
-                  {statsInView ? <AnimatedStatValue value={stat.value} /> : `${prefix}0${suffix}`}
+                <div className="grid h-[54px] w-[54px] flex-shrink-0 place-items-center rounded-[16px] border border-[#C9C2F0]/20 bg-[#C9C2F0]/10 text-[#C9C2F0] transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-[#C9C2F0]/45">
+                  <Icon size={25} />
                 </div>
-                <div className="font-space-grotesk text-[10px] uppercase tracking-[0.5px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                  {stat.label}
+                <div>
+                  <h3 className="mb-2 font-outfit text-[16px] font-bold leading-[1.22] text-white">{item.title}</h3>
+                  <p className="font-space-grotesk text-[13px] leading-[1.55] text-[#E8E6F4]/75">{item.description}</p>
                 </div>
-              </motion.div>
+              </a>
             );
           })}
-        </motion.div>
+        </div>
       </motion.div>
     </section>
   );

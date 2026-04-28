@@ -8,4 +8,4 @@
   Run `npm i` to install the dependencies.
 
   Run `npm run dev` to start the development server.
-  
+  ![alt text](<WhatsApp Image 2026-04-28 at 15.59.54 (1).jpeg>)

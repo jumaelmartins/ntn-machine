@@ -1,0 +1,85 @@
+<!-- Exemplo de estrutura para usar a animação das ondas no hero -->
+
+<section class="ntn-page">
+  <header class="ntn-header">
+    <div class="ntn-logo">
+      <img src="/logo-ntn-machine.png" alt="NTN Machine">
+      <div class="ntn-logo-text">
+        <strong>NTN</strong>
+        <span>MACHINE</span>
+      </div>
+    </div>
+
+    <nav class="ntn-nav">
+      <a href="#" class="active">Início</a>
+      <a href="#">Soluções</a>
+      <a href="#">Tecnologias</a>
+      <a href="#">Cases</a>
+      <a href="#">Contato</a>
+    </nav>
+
+    <a class="ntn-btn ntn-btn-primary" href="#">Fale com um especialista →</a>
+  </header>
+
+  <main class="ntn-hero">
+    <div>
+      <p class="ntn-eyebrow">Tecnologia que transforma negócios</p>
+
+      <h1 class="ntn-hero-title">
+        Transformamos ideias em
+        <span class="ntn-gradient-text">software inteligente</span>
+        e resultados reais.
+      </h1>
+
+      <p class="ntn-hero-description">
+        Desenvolvemos sistemas sob medida, soluções com IA, automações e produtos digitais para acelerar a eficiência da sua empresa.
+      </p>
+
+      <div class="ntn-hero-actions">
+        <a class="ntn-btn ntn-btn-primary" href="#">Conheça nossas soluções →</a>
+        <a class="ntn-btn ntn-btn-secondary" href="#">Fale com um especialista →</a>
+      </div>
+    </div>
+
+    <div class="ntn-hero-visual">
+      <div class="ntn-wave-field">
+        <div class="ntn-wave"></div>
+        <div class="ntn-wave"></div>
+        <div class="ntn-wave"></div>
+      </div>
+
+      <div class="ntn-data-stream"></div>
+      <div class="ntn-particles"></div>
+
+      <div class="ntn-symbol-3d">
+        <img src="/logo-symbol-ntn.png" alt="Símbolo NTN Machine">
+      </div>
+    </div>
+
+    <div class="ntn-service-strip">
+      <article class="ntn-service-card">
+        <div class="ntn-service-icon">⌘</div>
+        <h3>Desenvolvimento de Software</h3>
+        <p>Sistemas robustos, escaláveis e seguros para sua operação.</p>
+      </article>
+
+      <article class="ntn-service-card">
+        <div class="ntn-service-icon">◇</div>
+        <h3>Inteligência Artificial</h3>
+        <p>IA aplicada para automatizar processos e gerar valor.</p>
+      </article>
+
+      <article class="ntn-service-card">
+        <div class="ntn-service-icon">☁</div>
+        <h3>Cloud & Infraestrutura</h3>
+        <p>Ambientes modernos, seguros e preparados para crescimento.</p>
+      </article>
+
+      <article class="ntn-service-card">
+        <div class="ntn-service-icon">↗</div>
+        <h3>Dados & Analytics</h3>
+        <p>Dashboards e insights para decisões mais inteligentes.</p>
+      </article>
+    </div>
+  </main>
+</section>
