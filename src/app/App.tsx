@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ComponentType } from 'react';
 import logoIcon from '../imports/logo-icon.png';
-import { AnimatePresence, motion, useScroll, useTransform } from 'motion/react';
+import { AnimatePresence, animate, motion, useInView, useMotionValue, useScroll, useTransform } from 'motion/react';
 import {
   ArrowRight, BarChart3, Bot, Calendar, CheckCircle2,
   ChevronDown, HelpCircle, LineChart, MessageCircle,
@@ -523,23 +523,94 @@ function LandingPage() {
   );
 }
 
+function AnimatedStatValue({ value }: { value: string }) {
+  const [displayValue, setDisplayValue] = useState(0);
+  const motionValue = useMotionValue(0);
+  const numericValue = Number(value.replace(/[^\d]/g, ''));
+  const suffix = value.replace(/[+\d.,]/g, '');
+  const prefix = value.startsWith('+') ? '+' : '';
+
+  useEffect(() => {
+    const controls = animate(motionValue, numericValue, {
+      duration: 1.8,
+      ease: [0.22, 1, 0.36, 1],
+      onUpdate: (latest) => setDisplayValue(Math.round(latest)),
+    });
+
+    return () => controls.stop();
+  }, [motionValue, numericValue]);
+
+  return <>{prefix}{displayValue.toLocaleString('pt-BR')}{suffix}</>;
+}
+
 function HeroSection() {
   const ref = useRef<HTMLElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '12%']);
+  const statsInView = useInView(statsRef, { once: true, amount: 0.35 });
+  const heroAuroraLayers = [
+    {
+      className: 'right-[-8%] top-[-12%] h-[520px] w-[760px] rounded-[46%]',
+      background: 'radial-gradient(80% 120% at 72% 18%, rgba(255,255,255,0.14) 0%, rgba(148,163,184,0.10) 28%, rgba(17,24,39,0.04) 52%, transparent 74%)',
+      filter: 'blur(18px)',
+      opacity: 0.85,
+      animate: { x: [0, -18, 0], y: [0, 14, 0], scale: [1, 1.03, 1] },
+      transition: { duration: 18, repeat: Infinity, ease: 'easeInOut' as const },
+    },
+    {
+      className: 'right-[10%] top-[6%] h-[380px] w-[560px] rounded-[50%]',
+      background: 'radial-gradient(74% 116% at 36% 56%, rgba(255,255,255,0.10) 0%, rgba(148,163,184,0.08) 32%, rgba(17,24,39,0.03) 56%, transparent 78%)',
+      filter: 'blur(24px)',
+      opacity: 0.58,
+      animate: { x: [0, 12, 0], y: [0, -12, 0], scale: [1, 1.05, 1] },
+      transition: { duration: 22, repeat: Infinity, ease: 'easeInOut' as const },
+    },
+  ];
 
   return (
-    <section ref={ref} className="relative bg-black overflow-hidden py-20 sm:py-28 md:py-36 px-4 md:px-8">
-      {/* Blob 1 */}
-      <div
-        className="absolute top-[-80px] right-[-60px] w-[380px] h-[380px] rounded-full pointer-events-none animate-blob-float"
-        style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.055) 0%, transparent 70%)' }}
-      />
-      {/* Blob 2 */}
-      <div
-        className="absolute bottom-[-100px] left-[-50px] w-[300px] h-[300px] rounded-full pointer-events-none animate-blob-float-slow"
-        style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.035) 0%, transparent 70%)', animationDelay: '-5s' }}
-      />
+    <section
+      ref={ref}
+      className="relative overflow-hidden py-20 sm:py-28 md:py-36 px-4 md:px-8"
+      style={{ background: 'linear-gradient(180deg, #020202 0%, #111827 52%, #050505 100%)' }}
+    >
+      <div className="pointer-events-none absolute inset-0">
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'radial-gradient(120% 86% at 50% 0%, rgba(255,255,255,0.08) 0%, rgba(17,24,39,0.02) 34%, transparent 66%)',
+          }}
+        />
+        <motion.div
+          className="absolute right-[-16%] top-[-28%] h-[640px] w-[880px] rounded-[48%]"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(17,24,39,0.01) 60%, transparent 100%)',
+            filter: 'blur(60px)',
+            opacity: 0.38,
+          }}
+          animate={{ x: [0, -10, 0], y: [0, 8, 0], scale: [1, 1.02, 1] }}
+          transition={{ duration: 26, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        {heroAuroraLayers.map((shape, index) => (
+          <motion.div
+            key={index}
+            className={`absolute ${shape.className}`}
+            style={{
+              background: shape.background,
+              filter: shape.filter,
+              opacity: shape.opacity,
+            }}
+            animate={shape.animate}
+            transition={shape.transition}
+          />
+        ))}
+        <div
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(90deg, rgba(2,2,2,0.12) 0%, transparent 30%, transparent 70%, rgba(5,5,5,0.18) 100%)',
+          }}
+        />
+      </div>
 
       <motion.div style={{ y }} className="max-w-5xl mx-auto text-center relative z-10">
         {/* Badge */}
@@ -561,7 +632,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="font-outfit font-black text-white leading-[1.0] tracking-[-2px] mb-6 text-[48px] sm:text-[60px] md:text-[72px]"
+          className="font-outfit font-bold text-white leading-[1.0] tracking-[-2px] mb-6 text-[48px] sm:text-[60px] md:text-[72px]"
         >
           Pare de perder dinheiro<br className="hidden sm:block" />{' '}
           com processos manuais
@@ -608,29 +679,35 @@ function HeroSection() {
 
         {/* Stats grid */}
         <motion.div
+          ref={statsRef}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.5 }}
           className="grid grid-cols-2 lg:grid-cols-4 max-w-[580px] mx-auto rounded-2xl overflow-hidden"
           style={{ gap: '1px', background: 'rgba(255,255,255,0.07)' }}
         >
-          {stats.map((stat, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.6 + i * 0.08 }}
-              className="py-4 text-center"
-              style={{ background: 'rgba(255,255,255,0.03)' }}
-            >
-              <div className="font-outfit font-black text-white text-[26px] leading-none mb-1">
-                {stat.value}
-              </div>
-              <div className="font-space-grotesk text-[10px] uppercase tracking-[0.5px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
-                {stat.label}
-              </div>
-            </motion.div>
-          ))}
+          {stats.map((stat, i) => {
+            const suffix = stat.value.replace(/[+\d.,]/g, '');
+            const prefix = stat.value.startsWith('+') ? '+' : '';
+
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.6 + i * 0.08 }}
+                className="py-4 text-center"
+                style={{ background: 'rgba(255,255,255,0.03)' }}
+              >
+                <div className="font-outfit font-black text-white text-[26px] leading-none mb-1">
+                  {statsInView ? <AnimatedStatValue value={stat.value} /> : `${prefix}0${suffix}`}
+                </div>
+                <div className="font-space-grotesk text-[10px] uppercase tracking-[0.5px]" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                  {stat.label}
+                </div>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </motion.div>
     </section>
@@ -1114,7 +1191,7 @@ function ProcessSection() {
               transition={{ duration: 0.55, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
               className="relative"
             >
-              <div className="font-outfit font-black text-[56px] leading-none mb-4" style={{ color: '#f3f4f6' }}>
+              <div className="font-outfit font-black text-[56px] leading-none mb-4" style={{ color: '#9ca3af' }}>
                 {item.step}
               </div>
               <h3 className="font-outfit font-bold text-[#111827] text-[16px] mb-2">{item.title}</h3>
@@ -1531,7 +1608,6 @@ function ConnectionLine({ service }: { service: Service }) {
 
 function ServiceCard({ service, floating = false }: { service: Service; floating?: boolean }) {
   const Icon = service.icon;
-  const isFeatured = service.title === 'Sistemas sob medida';
 
   return (
     <motion.a
@@ -1545,24 +1621,15 @@ function ServiceCard({ service, floating = false }: { service: Service; floating
       whileHover={{ y: -4 }}
       className={`${
         floating ? `absolute ${service.position} w-72` : 'w-full'
-      } block min-w-0 max-w-full p-5 rounded-[14px] bg-white cursor-pointer z-10 transition-all duration-150`}
-      style={{
-        border: `1px solid ${isFeatured ? '#374151' : '#e5e7eb'}`,
-        boxShadow: isFeatured
-          ? '0 4px 20px rgba(55,65,81,0.10)'
-          : '0 1px 4px rgba(0,0,0,0.04)',
-      }}
+      } group block min-w-0 max-w-full rounded-[14px] border border-[#e5e7eb] bg-white p-5 shadow-[0_1px_4px_rgba(0,0,0,0.04)] cursor-pointer z-10 transition-all duration-200 hover:border-[#374151] hover:shadow-[0_4px_20px_rgba(55,65,81,0.10)]`}
     >
       <div className="flex items-start gap-4">
         <div
-          className="p-2.5 rounded-[10px] flex-shrink-0"
-          style={{
-            background: isFeatured ? '#111827' : '#f3f4f6',
-          }}
+          className="flex-shrink-0 rounded-[10px] bg-[#f3f4f6] p-2.5 transition-colors duration-200 group-hover:bg-[#111827]"
         >
           <Icon
             size={22}
-            style={{ color: isFeatured ? '#ffffff' : '#374151' }}
+            className="text-[#374151] transition-colors duration-200 group-hover:text-white"
           />
         </div>
         <div className="min-w-0 flex-1">

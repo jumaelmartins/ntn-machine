@@ -64,7 +64,20 @@ assert.match(app, /const currentPath = window\.location\.pathname/, 'App should 
 assert.match(app, /const selectedService = services\.find\(\(service\) => service\.href === currentPath\)/, 'Each solution URL should resolve to service data');
 assert.match(app, /selectedService \? <SolutionPage service=\{selectedService\} \/> : <LandingPage \/>/, 'App should render either the solution page or the landing page');
 
-assert.match(app, /text-4xl sm:text-5xl md:text-7xl/, 'Hero heading should scale down on mobile');
+assert.match(app, /text-\[48px\] sm:text-\[60px\] md:text-\[72px\]/, 'Hero heading should preserve the intended responsive scale');
+assert.match(app, /function AnimatedStatValue\(\{ value \}: \{ value: string \}\)/, 'Hero stats should use a dedicated animated counter helper');
+assert.match(app, /const statsInView = useInView\(statsRef, \{ once: true, amount: 0\.35 \}\)/, 'Hero stats should animate only when the grid enters the viewport');
+assert.match(app, /const numericValue = Number\(value\.replace\(\/\[\^\\d\]\/g, ''\)\)/, 'AnimatedStatValue should parse only the numeric portion of a stat');
+assert.match(app, /const suffix = value\.replace\(\/\[\+\\d\.,\]\/g, ''\)/, 'AnimatedStatValue should keep the suffix separate from the animated number');
+assert.match(app, /const heroAuroraLayers = \[/, 'Hero should define the monochrome aurora layer collection');
+assert.match(app, /linear-gradient\(180deg, #020202 0%, #111827 52%, #050505 100%\)/, 'Hero should use a dark wave gradient instead of a flat black background');
+assert.match(app, /background: 'radial-gradient\(80% 120% at 72% 18%, rgba\(255,255,255,0\.14\) 0%, rgba\(148,163,184,0\.10\) 28%, rgba\(17,24,39,0\.04\) 52%, transparent 74%\)'/, 'Hero should render a soft monochrome aurora gradient');
+assert.match(app, /animate: \{ x: \[0, -18, 0\], y: \[0, 14, 0\], scale: \[1, 1\.03, 1\] \}/, 'Main aurora layer should drift gently');
+assert.match(app, /animate: \{ x: \[0, 12, 0\], y: \[0, -12, 0\], scale: \[1, 1\.05, 1\] \}/, 'Secondary aurora layer should move independently');
+assert.doesNotMatch(app, /const heroGeometricShapes = \[/, 'Hero should no longer define the geometric shape collection');
+assert.doesNotMatch(app, /className="absolute inset-x-0 top-\[22%\] h-px"/, 'Hero should remove the top horizontal highlight line');
+assert.doesNotMatch(app, /className="absolute inset-x-\[8%\] bottom-\[22%\] h-px"/, 'Hero should remove the bottom horizontal highlight line');
+assert.match(app, /font-outfit font-bold text-white/, 'Hero heading should use a lighter weight');
 assert.match(app, /hidden lg:block/, 'Desktop service diagram should be hidden on smaller screens');
 assert.match(app, /lg:hidden/, 'Mobile service cards should have a non-absolute fallback');
 
@@ -81,16 +94,20 @@ for (const slug of [
   assert.match(app, new RegExp(`href: '/solucoes/${slug}'`), `Service should expose /solucoes/${slug}`);
 }
 assert.match(app, /href=\{service\.href\}/, 'Service cards should link to their detail pages');
+assert.doesNotMatch(app, /function ServiceCard[\s\S]*?Sistemas sob medida/, 'Service cards should not keep a permanent featured state for one specific solution');
+assert.match(app, /group-hover:text-white/, 'Service cards should reveal their strongest contrast only on hover');
+assert.match(app, /hover:border-\[#374151\]/, 'Service cards should highlight their border on hover');
 assert.match(app, /function SolutionPage\(\{ service \}: \{ service: Service \}\)/, 'Solution pages should share a reusable template');
 assert.match(app, /Como funciona/, 'Solution pages should explain how the solution works');
 assert.match(app, /O que entregamos/, 'Solution pages should list concrete deliverables');
 assert.match(app, /Resultados que buscamos/, 'Solution pages should frame expected outcomes');
 assert.match(app, /Oferta recomendada/, 'Solution pages should show a recommended offer');
 assert.match(app, /service\.whatsappMessage/, 'Solution CTAs should use service-specific WhatsApp messages');
-assert.match(app, /className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6"/, 'Solution header back link and badge should have clear spacing');
-assert.match(app, /stroke=\{isVertical \? 'rgba\(59, 130, 246, 0\.82\)' : 'url\(#lineGradientDiagonal\)'\}/, 'Vertical logo lines should avoid a degenerate SVG gradient');
+assert.match(app, /className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-5"/, 'Solution header back link and badge should have clear spacing');
+assert.match(app, /stroke=\{isVertical \? 'rgba\(55,65,81,0\.8\)' : 'url\(#lineGrad\)'\}/, 'Vertical logo lines should avoid a degenerate SVG gradient');
 assert.match(app, /initial=\{\{ pathLength: 0, opacity: 0 \}\}/, 'Logo lines should animate from the logo instead of rendering fully drawn');
 assert.match(app, /whileInView=\{\{ pathLength: 1, opacity: 1 \}\}/, 'Logo lines should finish drawing when the section enters the viewport');
+assert.match(app, /text-\[56px\] leading-none mb-4" style=\{\{ color: '#9ca3af' \}\}/, 'Process step numbers should have stronger contrast');
 
 assert.doesNotMatch(app, /rounded-full blur-\[/, 'Background should avoid decorative blurred orbs');
 
