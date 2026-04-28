@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ComponentType } from 'react';
+import type { ComponentType, PointerEvent } from 'react';
 import logoIcon from '../imports/logo-icon.png';
-import { AnimatePresence, animate, motion, useInView, useMotionValue, useScroll, useTransform } from 'motion/react';
+import { AnimatePresence, animate, motion, useInView, useMotionValue, useScroll, useSpring, useTransform } from 'motion/react';
 import {
   ArrowRight, BarChart3, Bot, Calendar, CheckCircle2,
   ChevronDown, HelpCircle, LineChart, MessageCircle,
@@ -301,6 +301,102 @@ const heroServiceHighlights = [
   },
 ];
 
+const dnaHelixStrands = [
+  {
+    id: 'dna-front-strand',
+    phase: 0,
+    opacity: 0.88,
+    strokeWidth: 2.25,
+    duration: 8.8,
+    delay: 0,
+  },
+  {
+    id: 'dna-back-strand',
+    phase: Math.PI,
+    opacity: 0.62,
+    strokeWidth: 1.65,
+    duration: 9.8,
+    delay: 0.4,
+  },
+  {
+    id: 'dna-front-thread',
+    phase: 0.18,
+    opacity: 0.42,
+    strokeWidth: 0.8,
+    duration: 11.4,
+    delay: 0.2,
+  },
+  {
+    id: 'dna-back-thread',
+    phase: Math.PI + 0.18,
+    opacity: 0.32,
+    strokeWidth: 0.7,
+    duration: 12.6,
+    delay: 0.6,
+  },
+];
+
+const dnaHelixPointXs = [-150, -60, 30, 120, 210, 300, 390, 480, 570, 660, 750, 840, 930, 1020, 1110, 1200, 1290];
+const dnaRungXs = [-92, -20, 52, 124, 196, 268, 340, 412, 484, 556, 628, 700, 772, 844, 916, 988, 1060, 1132, 1204];
+
+function getDnaHelixPoint(
+  strand: (typeof dnaHelixStrands)[number],
+  x: number,
+  pointer: { x: number; y: number; intensity: number },
+) {
+  const cursorX = 560 + pointer.x * 300;
+  const cursorInfluence = Math.max(0, 1 - Math.abs(x - cursorX) / 410);
+  const wave = Math.sin(x / 74 + strand.phase + pointer.x * 0.92);
+  const detail = Math.sin(x / 28 + strand.phase * 0.7) * (5 + pointer.intensity * 4);
+  const centerY = 268 + pointer.y * 54 * cursorInfluence;
+  const amplitude = 82 + pointer.intensity * 34 * cursorInfluence;
+  const depth = (Math.cos(x / 74 + strand.phase + pointer.x * 0.92) + 1) / 2;
+
+  return {
+    x: x + pointer.x * 54 * cursorInfluence,
+    y: centerY + wave * amplitude + detail + pointer.y * 38 * cursorInfluence,
+    depth,
+  };
+}
+
+function buildDnaHelixPath(
+  strand: (typeof dnaHelixStrands)[number],
+  pointer: { x: number; y: number; intensity: number },
+) {
+  const points = dnaHelixPointXs.map((x) => getDnaHelixPoint(strand, x, pointer));
+  const [first, ...rest] = points;
+
+  return rest.reduce((path, point, index) => {
+    const previous = points[index];
+    const distance = point.x - previous.x;
+    const c1x = previous.x + distance * 0.44;
+    const c2x = previous.x + distance * 0.56;
+
+    return `${path} C ${c1x} ${previous.y} ${c2x} ${point.y} ${point.x} ${point.y}`;
+  }, `M ${first.x} ${first.y}`);
+}
+
+function buildDnaRungs(pointer: { x: number; y: number; intensity: number }) {
+  return dnaRungXs.map((x, index) => {
+    const front = getDnaHelixPoint(dnaHelixStrands[0], x, pointer);
+    const back = getDnaHelixPoint(dnaHelixStrands[1], x, pointer);
+    const isFront = front.depth > back.depth;
+    const frontPoint = isFront ? front : back;
+    const backPoint = isFront ? back : front;
+
+    return {
+      id: `dna-rung-${index}`,
+      x1: backPoint.x,
+      y1: backPoint.y,
+      x2: frontPoint.x,
+      y2: frontPoint.y,
+      opacity: 0.24 + frontPoint.depth * 0.52,
+      strokeWidth: 0.65 + frontPoint.depth * 1.15,
+      nodeRadius: 1.5 + frontPoint.depth * 1.6,
+    };
+  });
+}
+
 const impactItems = [
   {
     icon: Zap,
@@ -572,6 +668,36 @@ function HeroSection() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '6%']);
   const statsInView = useInView(statsRef, { once: true, amount: 0.35 });
+  const dnaMouseX = useMotionValue(0);
+  const dnaMouseY = useMotionValue(0);
+  const dnaX = useSpring(dnaMouseX, { stiffness: 92, damping: 18, mass: 0.4 });
+  const dnaY = useSpring(dnaMouseY, { stiffness: 92, damping: 18, mass: 0.4 });
+  const [dnaPointer, setDnaPointer] = useState({ x: 0, y: 0, intensity: 0 });
+  const distortedDnaHelixStrands = dnaHelixStrands.map((strand) => ({
+    ...strand,
+    d: buildDnaHelixPath(strand, dnaPointer),
+  }));
+  const dnaRungs = buildDnaRungs(dnaPointer);
+
+  function handleDnaPointerMove(event: PointerEvent<HTMLDivElement>) {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+    const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+
+    dnaMouseX.set(x * 52);
+    dnaMouseY.set(y * 34);
+    setDnaPointer({
+      x: Math.max(-1, Math.min(1, x * 2)),
+      y: Math.max(-1, Math.min(1, y * 2)),
+      intensity: Math.min(1, Math.hypot(x, y) * 2.1),
+    });
+  }
+
+  function handleDnaPointerLeave() {
+    dnaMouseX.set(0);
+    dnaMouseY.set(0);
+    setDnaPointer({ x: 0, y: 0, intensity: 0 });
+  }
 
   return (
     <section
@@ -707,36 +833,137 @@ function HeroSection() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
           className="relative min-h-[340px] sm:min-h-[430px] lg:min-h-[590px]"
+          onPointerMove={handleDnaPointerMove}
+          onPointerLeave={handleDnaPointerLeave}
         >
-          <div className="ntn-wave-field absolute inset-x-[-18%] top-[18%] bottom-[4%] overflow-hidden opacity-95 [mask-image:radial-gradient(ellipse_at_center,black_0%,black_48%,transparent_76%)]">
-            {[0, 1, 2].map((wave) => (
-              <motion.div
-                key={wave}
-                className="absolute left-1/2 h-[190px] rounded-[50%]"
-                style={{
-                  top: `${42 + wave * 8}%`,
-                  width: `${118 + wave * 18}%`,
-                  background:
-                    'radial-gradient(circle at center, rgba(201,194,240,0.23), transparent 58%), repeating-linear-gradient(90deg, rgba(201,194,240,0) 0px, rgba(201,194,240,0) 24px, rgba(201,194,240,0.48) 25px, rgba(201,194,240,0) 28px)',
-                  filter: 'blur(0.5px)',
-                  opacity: 0.72 - wave * 0.16,
+          <motion.svg
+            className="ntn-dna-wave-field absolute inset-x-[-24%] top-[10%] h-[78%] w-[148%] opacity-95 [mask-image:radial-gradient(ellipse_at_center,black_0%,black_52%,transparent_80%)]"
+            viewBox="0 0 1120 520"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+            style={{ mixBlendMode: 'screen', x: dnaX, y: dnaY }}
+            animate={{ rotateZ: [-2.2, 1.6, -2.2], scaleY: [0.94, 1.06, 0.94] }}
+            transition={{ duration: 10.5, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <defs>
+              <linearGradient id="dnaStrandFront" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="rgba(201,194,240,0)" />
+                <stop offset="18%" stopColor="rgba(216,216,226,0.40)" />
+                <stop offset="46%" stopColor="rgba(255,255,255,0.95)" />
+                <stop offset="62%" stopColor="rgba(201,194,240,0.72)" />
+                <stop offset="82%" stopColor="rgba(118,118,133,0.42)" />
+                <stop offset="100%" stopColor="rgba(201,194,240,0)" />
+              </linearGradient>
+              <linearGradient id="dnaStrandBack" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="rgba(118,118,133,0)" />
+                <stop offset="24%" stopColor="rgba(201,194,240,0.28)" />
+                <stop offset="52%" stopColor="rgba(255,255,255,0.52)" />
+                <stop offset="78%" stopColor="rgba(118,118,133,0.24)" />
+                <stop offset="100%" stopColor="rgba(201,194,240,0)" />
+              </linearGradient>
+              <linearGradient id="dnaRungGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="rgba(118,118,133,0.12)" />
+                <stop offset="45%" stopColor="rgba(201,194,240,0.48)" />
+                <stop offset="100%" stopColor="rgba(255,255,255,0.82)" />
+              </linearGradient>
+              <radialGradient id="dnaPulse" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="rgba(255,255,255,0.42)" />
+                <stop offset="42%" stopColor="rgba(201,194,240,0.18)" />
+                <stop offset="100%" stopColor="rgba(201,194,240,0)" />
+              </radialGradient>
+              <filter id="dnaGlow" x="-20%" y="-70%" width="140%" height="240%">
+                <feGaussianBlur stdDeviation="3.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            <motion.ellipse
+              cx={560 + dnaPointer.x * 64}
+              cy={268 + dnaPointer.y * 42}
+              rx={210 + dnaPointer.intensity * 44}
+              ry={112 + dnaPointer.intensity * 24}
+              fill="url(#dnaPulse)"
+              animate={{ opacity: [0.16, 0.38, 0.16] }}
+              transition={{ duration: 6.2, repeat: Infinity, ease: 'easeInOut' }}
+            />
+
+            <motion.g
+              filter="url(#dnaGlow)"
+              animate={{ x: [-20, 18, -20], y: [8, -8, 8] }}
+              transition={{ duration: 11.5, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              {dnaRungs.map((rung, index) => (
+                <motion.g
+                  key={rung.id}
+                  animate={{
+                    opacity: [rung.opacity * 0.6, rung.opacity, rung.opacity * 0.72],
+                  }}
+                  transition={{ duration: 2.6 + (index % 5) * 0.32, repeat: Infinity, ease: 'easeInOut', delay: index * 0.04 }}
+                >
+                  <line
+                    x1={rung.x1}
+                    y1={rung.y1}
+                    x2={rung.x2}
+                    y2={rung.y2}
+                    stroke="url(#dnaRungGradient)"
+                    strokeLinecap="round"
+                    strokeWidth={rung.strokeWidth}
+                  />
+                  <circle cx={rung.x2} cy={rung.y2} r={rung.nodeRadius} fill="#F5F5F7" opacity={0.28 + rung.opacity * 0.34} />
+                  <circle cx={rung.x1} cy={rung.y1} r={Math.max(0.9, rung.nodeRadius * 0.62)} fill="#C9C2F0" opacity={0.16 + rung.opacity * 0.22} />
+                </motion.g>
+              ))}
+
+              {distortedDnaHelixStrands.map((strand, index) => (
+                <motion.path
+                  key={strand.id}
+                  d={strand.d}
+                  fill="none"
+                  stroke={index % 2 === 0 ? 'url(#dnaStrandFront)' : 'url(#dnaStrandBack)'}
+                  strokeLinecap="round"
+                  strokeWidth={strand.strokeWidth}
+                  style={{ strokeDasharray: index < 2 ? '32 18' : '5 18' }}
+                  animate={{
+                    opacity: [strand.opacity * 0.52, strand.opacity, strand.opacity * 0.68],
+                    strokeDashoffset: [0, -300],
+                    pathLength: [0.78, 1, 0.82],
+                  }}
+                  transition={{
+                    duration: strand.duration,
+                    repeat: Infinity,
+                    ease: 'linear',
+                    delay: strand.delay,
+                  }}
+                />
+              ))}
+            </motion.g>
+
+            {distortedDnaHelixStrands.slice(0, 2).map((strand, index) => (
+              <motion.circle
+                key={`${strand.id}-pulse`}
+                r={index === 0 ? 3.6 : 2.8}
+                fill="#F5F5F7"
+                filter="url(#dnaGlow)"
+                animate={{
+                  offsetDistance: ['0%', '100%'],
+                  opacity: [0, 0.9, 0],
+                  scale: [0.7, 1.25, 0.7],
                 }}
-                animate={{ x: ['-58%', '-42%', '-58%'], scaleY: [0.82, 1.08, 0.82] }}
-                transition={{ duration: 8 + wave * 2.5, repeat: Infinity, ease: 'linear', delay: wave * 0.45 }}
+                transition={{
+                  duration: 5.6 + index * 1.2,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                  delay: index * 0.9,
+                }}
+                style={{
+                  offsetPath: `path('${strand.d}')`,
+                }}
               />
             ))}
-          </div>
-
-          <motion.div
-            className="ntn-data-stream absolute left-[-12%] right-[-12%] top-[54%] h-[230px] opacity-55"
-            style={{
-              background:
-                'linear-gradient(90deg, transparent, rgba(201,194,240,0.30), transparent), repeating-linear-gradient(90deg, transparent 0 28px, rgba(255,255,255,0.18) 29px 30px)',
-              transform: 'perspective(760px) rotateX(64deg)',
-            }}
-            animate={{ backgroundPosition: ['0px 0px', '340px 0px'] }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-          />
+          </motion.svg>
 
           <motion.div
             className="ntn-particles absolute inset-0"
@@ -750,21 +977,6 @@ function HeroSection() {
             transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
           />
 
-          {Array.from({ length: 16 }).map((_, index) => (
-            <motion.span
-              key={index}
-              className="absolute bottom-[17%] w-px bg-[#C9C2F0]/35"
-              style={{
-                left: `${12 + index * 5.4}%`,
-                height: `${42 + (index % 5) * 34}px`,
-                boxShadow: '0 0 16px rgba(201,194,240,0.42)',
-              }}
-              animate={{ opacity: [0.15, 0.72, 0.24], y: [8, -10, 8] }}
-              transition={{ duration: 3.8 + (index % 4) * 0.5, repeat: Infinity, ease: 'easeInOut', delay: index * 0.12 }}
-            >
-              <span className="absolute -top-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[#E8E6F4]" />
-            </motion.span>
-          ))}
 
           <div className="absolute left-1/2 top-1/2 z-10 grid aspect-square w-[250px] -translate-x-1/2 -translate-y-1/2 place-items-center sm:w-[340px] lg:w-[420px]">
             <motion.img
