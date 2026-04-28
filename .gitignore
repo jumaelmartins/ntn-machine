@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+.claude
+CNPJ NATAN LEITE CRESPO SOUZA.pdf
+.superpowers
+docs
+PROPOSTAS TECNICAS E COMERCIAIS
+FONTE-20241130T113254Z-001
+LOGO-20241130T113253Z-001
+NATAN LEITE.png
+guidelines

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ntnmachine.com/sitemap.xml
