@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import assert from 'node:assert/strict';
 
@@ -7,6 +7,11 @@ const app = readFileSync(join(root, 'src/app/App.tsx'), 'utf8');
 const html = readFileSync(join(root, 'index.html'), 'utf8');
 const robots = readFileSync(join(root, 'public/robots.txt'), 'utf8');
 const sitemap = readFileSync(join(root, 'public/sitemap.xml'), 'utf8');
+const vercelConfigPath = join(root, 'vercel.json');
+
+assert.ok(existsSync(vercelConfigPath), 'Vercel config should exist so SPA routes work in production');
+
+const vercelConfig = JSON.parse(readFileSync(vercelConfigPath, 'utf8'));
 
 assert.match(html, /<html lang="pt-BR">/, 'HTML language should be Brazilian Portuguese');
 assert.match(html, /<title>NTN MACHINE \| Automação, IA e sistemas sob medida<\/title>/, 'HTML title should be specific and branded');
@@ -16,6 +21,11 @@ assert.match(html, /property="og:title"/, 'HTML should include Open Graph metada
 assert.match(html, /name="twitter:card"/, 'HTML should include Twitter card metadata');
 assert.match(robots, /Sitemap: https:\/\/ntnmachine\.com\/sitemap\.xml/, 'Robots file should point search engines to the sitemap');
 assert.match(sitemap, /https:\/\/ntnmachine\.com\/solucoes\/chatbots-ia/, 'Sitemap should include solution pages');
+assert.ok(Array.isArray(vercelConfig.rewrites), 'Vercel config should define rewrites for client-side routes');
+assert.ok(
+  vercelConfig.rewrites.some((rewrite) => rewrite.source === '/(.*)' && rewrite.destination === '/index.html'),
+  'Vercel should rewrite SPA routes to index.html',
+);
 
 assert.match(app, /const whatsappNumber = '5571996575727'/, 'WhatsApp number should be normalized with Brazil country code');
 assert.match(app, /const whatsappHref = `https:\/\/wa\.me\/\$\{whatsappNumber\}\?text=\$\{encodeURIComponent\(whatsappMessage\)\}`/, 'WhatsApp link should be generated with an encoded message');
